@@ -9,6 +9,7 @@
 ## Files
 - `inventory.js` holds the `STORE` settings (contact links, payments, pickup text, `updated` date) and the `INVENTORY` array. **All routine edits happen here.**
 - `script.js` handles rendering, category chips, search, sort, the item dialog (`#ID` deep links such as `/#P001`), the copy-message and copy-link buttons, and the drawn SVG art used when an item has no photo.
+- **Cart:** it's saved in the shopper's browser (localStorage key `vault-cart`), with no backend and no checkout. The cart dialog builds a "Hey Mark, can I come and get these?" list with quantities and a total, and sends it with the Text me (sms:) and Email me (mailto:) buttons. Quantities are capped at the item's `qty`. Items that sold or went on hold drop out of carts automatically.
 - `styles.css` uses the sky-blue/red theme. CSS variables are on `:root`.
 - `images/` holds item photos, referenced as `image: "images/P001.jpg"`.
 - `og-image.png` is the 1200×630 link-preview card for Facebook and others.

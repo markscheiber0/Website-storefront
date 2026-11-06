@@ -116,7 +116,11 @@ function prettyPhone(p) {
 }
 
 function contactLinks(item) {
-  const msg = inquiryText(item);
+  const subject = item ? `${item.name} — ${STORE.name}` : `${STORE.name} question`;
+  return contactLinksFor(inquiryText(item), subject);
+}
+
+function contactLinksFor(msg, subject) {
   const links = [];
   if (STORE.messenger) links.push({ cls: "c-messenger", label: "Messenger", href: STORE.messenger });
   if (STORE.phone) {
@@ -130,7 +134,6 @@ function contactLinks(item) {
     });
   }
   if (STORE.email) {
-    const subject = item ? `${item.name} — ${STORE.name}` : `${STORE.name} question`;
     links.push({
       cls: "c-email",
       label: "✉️ Email me",
@@ -214,9 +217,7 @@ function render() {
         </button>
         <div class="card-foot">
           <span class="price">${fmtPrice(item.price)}</span>
-          ${s === "sold"
-            ? `<span class="sold-note">Sold</span>`
-            : `<button class="want-btn" type="button" data-id="${esc(item.id)}">I want this</button>`}
+          ${cartButton(item)}
         </div>
       </article>`;
     })
@@ -258,9 +259,20 @@ function openItem(id, push = true) {
         <div><dt>Availability</dt><dd>${statusLine}</dd></div>
         <div><dt>Pickup</dt><dd>${esc(STORE.city)}</dd></div>
       </dl>
+      ${s === "available" ? `
+        <div class="buy">
+          ${item.qty > 1 ? `
+          <div class="qty" data-id="${esc(item.id)}">
+            <button type="button" class="qty-btn" data-step="-1" aria-label="Fewer">−</button>
+            <input type="number" id="modalQty" value="1" min="1" max="${item.qty}" inputmode="numeric" aria-label="Quantity">
+            <button type="button" class="qty-btn" data-step="1" aria-label="More">+</button>
+          </div>` : ""}
+          <button type="button" class="btn-cart" data-add="${esc(item.id)}" data-from="modal">🛒 Add to cart</button>
+          <span class="in-cart-note" id="modalInCart"></span>
+        </div>` : ""}
       ${s === "sold" ? "" : `
         <div class="ask">
-          <p class="ask-label">Message me about it:</p>
+          <p class="ask-label">Or ask about just this item:</p>
           <p class="ask-msg">“${esc(inquiryText(item))}”</p>
           <div class="contact-btns">
             ${links.map(linkBtn).join("")}
@@ -270,6 +282,7 @@ function openItem(id, push = true) {
       <button type="button" class="share-link" data-copy="link" data-id="${esc(item.id)}">🔗 Copy link to this item</button>
     </div>`;
 
+  updateModalCartNote(item.id);
   if (!modal.open) modal.showModal();
   if (push && location.hash !== "#" + id) history.pushState(null, "", "#" + id);
 }
@@ -318,7 +331,23 @@ async function copy(text, done) {
 
 // ---------- Events ----------
 document.addEventListener("click", (e) => {
-  const open = e.target.closest(".card-open, .want-btn");
+  const add = e.target.closest("[data-add]");
+  if (add) {
+    const id = add.dataset.add;
+    const qtyInput = add.dataset.from === "modal" ? $("modalQty") : null;
+    return addToCart(id, qtyInput ? Number(qtyInput.value) || 1 : 1);
+  }
+  if (e.target.closest("[data-open-cart]")) return openCart();
+
+  const step = e.target.closest(".qty-btn");
+  if (step) {
+    const input = step.parentElement.querySelector("input");
+    const max = Number(input.max) || 99;
+    input.value = Math.min(max, Math.max(1, (Number(input.value) || 1) + Number(step.dataset.step)));
+    return;
+  }
+
+  const open = e.target.closest(".card-open");
   if (open) return openItem(open.dataset.id);
 
   const chip = e.target.closest(".chip");
@@ -350,6 +379,173 @@ $("search").addEventListener("input", (e) => {
 $("sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
 $("showSold").addEventListener("change", (e) => { state.showSold = e.target.checked; render(); });
 
+// ---------- Cart ----------
+// Stored in the shopper's browser only: { "P001": 2, ... }
+const CART_KEY = "vault-cart";
+let cart = {};
+
+function loadCart() {
+  try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || {}; } catch { cart = {}; }
+  // Drop anything that sold or went on hold since they added it; clamp to stock
+  for (const id of Object.keys(cart)) {
+    const item = INVENTORY.find((i) => i.id === id);
+    if (!item || statusOf(item) !== "available") delete cart[id];
+    else cart[id] = Math.min(item.qty, Math.max(1, Math.floor(cart[id]) || 1));
+  }
+  saveCart();
+}
+
+function saveCart() {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  updateCartCount();
+}
+
+const cartEntries = () =>
+  Object.entries(cart)
+    .map(([id, qty]) => ({ item: INVENTORY.find((i) => i.id === id), qty }))
+    .filter((e) => e.item);
+const cartCount = () => cartEntries().reduce((n, e) => n + e.qty, 0);
+const cartTotal = () => cartEntries().reduce((n, e) => n + e.qty * e.item.price, 0);
+
+function updateCartCount() {
+  const n = cartCount();
+  document.querySelectorAll(".cart-count").forEach((el) => {
+    el.textContent = n;
+    el.classList.remove("bump");
+    void el.offsetWidth;
+    el.classList.add("bump");
+  });
+  $("cartFab").hidden = n === 0;
+}
+
+function cartButton(item) {
+  const s = statusOf(item);
+  if (s === "sold") return `<span class="sold-note">Sold</span>`;
+  if (s === "pending") return `<span class="sold-note">On hold</span>`;
+  if (cart[item.id]) return `<button class="incart-btn" type="button" data-open-cart>✓ In cart</button>`;
+  return `<button class="want-btn" type="button" data-add="${esc(item.id)}">Add to cart</button>`;
+}
+
+function addToCart(id, qty = 1) {
+  const item = INVENTORY.find((i) => i.id === id);
+  if (!item || statusOf(item) !== "available") return;
+  const before = cart[id] || 0;
+  cart[id] = Math.min(item.qty, before + qty);
+  saveCart();
+  render();
+  updateModalCartNote(id);
+  if (cart[id] === before) toast(`You already have all ${item.qty} in your cart`);
+  else toast(`Added ${item.name} to your cart`);
+}
+
+function setCartQty(id, qty) {
+  const item = INVENTORY.find((i) => i.id === id);
+  if (!item) return;
+  if (qty <= 0) delete cart[id];
+  else cart[id] = Math.min(item.qty, qty);
+  saveCart();
+  render();
+  renderCart();
+}
+
+function updateModalCartNote(id) {
+  const note = $("modalInCart");
+  if (!note) return;
+  const n = cart[id] || 0;
+  note.innerHTML = n ? `${n} in your cart · <button type="button" class="link-btn" data-open-cart>View cart</button>` : "";
+}
+
+function cartMessage() {
+  const entries = cartEntries();
+  const lines = entries.map((e) =>
+    `• ${e.qty > 1 ? e.qty + "× " : ""}${e.item.name} — ${fmtPrice(e.item.price * e.qty)}`
+  );
+  const intro = entries.length === 1 && entries[0].qty === 1
+    ? `Hey ${SELLER}, can I come and get the ${entries[0].item.name}?`
+    : `Hey ${SELLER}, can I come and get these?`;
+  return `${intro}\n\n${lines.join("\n")}\n\nTotal: ${fmtPrice(cartTotal())}`;
+}
+
+const cartModal = $("cartModal");
+
+function renderCart() {
+  const entries = cartEntries();
+  const body = $("cartBody");
+  if (!entries.length) {
+    body.innerHTML = `
+      <div class="cart-empty">
+        <p>Your cart is empty.</p>
+        <button type="button" class="btn-red" data-close-cart>Browse inventory</button>
+      </div>`;
+    return;
+  }
+  const n = cartCount();
+  const msg = cartMessage();
+  const subject = `${n} item${n === 1 ? "" : "s"} from ${STORE.name}`;
+  body.innerHTML = `
+    <ul class="cart-list">
+      ${entries.map(({ item, qty }) => `
+        <li class="cart-row">
+          <div class="cart-thumb">${mediaFor(item)}</div>
+          <div class="cart-info">
+            <p class="cart-name">${esc(item.name)}</p>
+            <p class="cart-each">${fmtPrice(item.price)} each${item.qty > 1 ? ` · ${item.qty} available` : ""}</p>
+            <div class="cart-controls">
+              ${item.qty > 1 ? `
+              <div class="qty qty-sm">
+                <button type="button" data-cart-step="-1" data-id="${esc(item.id)}" aria-label="Fewer">−</button>
+                <span>${qty}</span>
+                <button type="button" data-cart-step="1" data-id="${esc(item.id)}" aria-label="More" ${qty >= item.qty ? "disabled" : ""}>+</button>
+              </div>` : `<span class="qty-one">Qty 1</span>`}
+              <button type="button" class="link-btn remove" data-remove="${esc(item.id)}">Remove</button>
+            </div>
+          </div>
+          <p class="cart-line">${fmtPrice(item.price * qty)}</p>
+        </li>`).join("")}
+    </ul>
+    <div class="cart-total"><span>Total (${n} item${n === 1 ? "" : "s"})</span><strong>${fmtPrice(cartTotal())}</strong></div>
+    <div class="cart-send">
+      <p class="ask-label">Send me your list</p>
+      <p class="cart-hint">Tap one — your list is already written. I'll confirm everything's available and set up a pickup in ${esc(STORE.city)}.</p>
+      <pre class="cart-msg">${esc(msg)}</pre>
+      <div class="contact-btns">
+        ${contactLinksFor(msg, subject).map(linkBtn).join("")}
+        <button type="button" class="contact-btn c-copy" data-copy-cart>Copy message</button>
+      </div>
+      <button type="button" class="link-btn clear" data-clear-cart>Empty cart</button>
+    </div>`;
+}
+
+function openCart() {
+  if (modal.open) closeItem();
+  renderCart();
+  if (!cartModal.open) cartModal.showModal();
+}
+
+cartModal.addEventListener("click", (e) => {
+  if (e.target === cartModal || e.target.closest("[data-close-cart]")) return cartModal.close();
+  const step = e.target.closest("[data-cart-step]");
+  if (step) return setCartQty(step.dataset.id, (cart[step.dataset.id] || 0) + Number(step.dataset.cartStep));
+  const rm = e.target.closest("[data-remove]");
+  if (rm) return setCartQty(rm.dataset.remove, 0);
+  if (e.target.closest("[data-copy-cart]")) return copy(cartMessage(), "List copied — paste it into a text or email");
+  if (e.target.closest("[data-clear-cart]")) {
+    cart = {};
+    saveCart();
+    render();
+    renderCart();
+  }
+});
+$("cartClose").addEventListener("click", () => cartModal.close());
+
+// Keep carts in sync across tabs
+window.addEventListener("storage", (e) => {
+  if (e.key !== CART_KEY) return;
+  loadCart();
+  render();
+  if (cartModal.open) renderCart();
+});
+
 // ---------- Page setup ----------
 function setupPage() {
   const inStock = INVENTORY.filter((i) => statusOf(i) === "available");
@@ -369,6 +565,7 @@ function setupPage() {
 }
 
 setupPage();
+loadCart();
 buildChips();
 render();
 openFromHash();
