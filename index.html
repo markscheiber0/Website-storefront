@@ -3,9 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Hidden storefront: keep this noindex tag (also enforced by _headers + robots.txt) -->
+  <!-- Unlisted storefront: stays out of search engines (also enforced by _headers + robots.txt).
+       Shared links still work and show a preview card on Facebook/Messenger. -->
   <meta name="robots" content="noindex, nofollow, noarchive">
-  <title>The Archive — Interactive Media Store</title>
+  <title>Scheiber's Vault — Pokémon & Nintendo in Boise</title>
+  <meta name="description" content="Pokémon cards, sealed product and Nintendo games for local pickup in Boise, ID. See what's in stock and what it costs.">
+
+  <!-- Link preview (Facebook, Messenger, iMessage, etc.) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Scheiber's Vault">
+  <meta property="og:title" content="Scheiber's Vault — Pokémon & Nintendo in Boise">
+  <meta property="og:description" content="Pokémon cards, sealed product & Nintendo games. Live inventory with prices — local pickup in Boise, ID.">
+  <meta property="og:url" content="https://storefront.scheiberintelligence.com/">
+  <meta property="og:image" content="https://storefront.scheiberintelligence.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#8fd3ff">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%23ee3124'/><text x='32' y='45' font-size='38' text-anchor='middle' fill='white' font-family='Arial Black,Arial' font-weight='900'>V</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -17,11 +33,8 @@
   <header class="topbar">
     <nav class="nav-pill" aria-label="Main">
       <a href="#shop">Shop</a>
-      <a href="#shop">Library</a>
-      <a href="#shop">Curations</a>
-      <a href="#shop">Vault</a>
-      <a href="#footer">Support</a>
-      <button class="cart-btn" type="button" aria-label="Cart">Cart <span class="cart-count" id="cartCount">0</span></button>
+      <a href="#how">How to buy</a>
+      <a href="#contact">Contact</a>
     </nav>
   </header>
 
@@ -29,42 +42,41 @@
     <section class="hero wrap">
       <div class="hero-left">
         <h1 class="logo">
-          <span class="logo-the">The</span>
-          <span class="logo-main">ARCHIVE</span>
+          <span class="logo-the">Scheiber's</span>
+          <span class="logo-main">VAULT</span>
         </h1>
-        <span class="tag-badge">Interactive Media Store</span>
+        <span class="tag-badge">Pokémon &amp; Nintendo · Boise, ID</span>
 
-        <div class="hero-screen" aria-hidden="true">
-          <div class="screen-glow"></div>
-          <div class="monitor">
-            <div class="monitor-bars">
-              <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-            </div>
-          </div>
-          <div class="desk"></div>
+        <div class="hero-stats">
+          <div class="stat"><strong id="statStock">–</strong><span>items in stock</span></div>
+          <div class="stat"><strong id="statFrom">–</strong><span>starting price</span></div>
+          <div class="stat"><strong id="statUpdated">–</strong><span>last updated</span></div>
         </div>
       </div>
 
       <div class="hero-card">
-        <h2>Our selection evolves<br>as we mature.</h2>
-        <p>Curating stories that challenge perception. We are here archiving narratives about discovery, conflict, growth, and everything in between. Sometimes it will be fast-paced, sometimes it will make you pause, but it will always be <strong>immersive</strong>.</p>
+        <h2>Cards, sealed packs &amp; games — right here in Boise.</h2>
+        <p>Everything I have for sale, with real prices and what's actually in stock. Pokémon singles, graded slabs, sealed product, plus Nintendo games and consoles. No shipping, no fees — just <strong>local pickup</strong>.</p>
         <blockquote>
-          <p>The only thing holding you back, is your hardware.</p>
-          <small>And only you can upgrade that.</small>
+          <p>See something you like? Message me the item code.</p>
+          <small>Every listing has a code like <b>#P001</b> — tap “I want this” and the message is written for you.</small>
         </blockquote>
-        <a class="btn-red" href="#shop">Browse Collection</a>
+        <a class="btn-red" href="#shop">Browse inventory</a>
       </div>
     </section>
 
     <section class="shop wrap" id="shop">
       <div class="shop-head">
-        <h2 class="pill-heading">Latest Acquisitions</h2>
+        <h2 class="pill-heading">In Stock</h2>
+        <div class="search">
+          <input id="search" type="search" placeholder="Search Charizard, Mario Kart, ETB…" aria-label="Search inventory" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="shop-bar">
+        <div class="chips" id="chips" role="tablist" aria-label="Category"></div>
         <div class="shop-tools">
-          <label>Filter
-            <select id="filter">
-              <option value="all">All</option>
-            </select>
-          </label>
+          <label class="toggle"><input type="checkbox" id="showSold"> Show sold</label>
           <label>Sort
             <select id="sort">
               <option value="new">Newest</option>
@@ -76,39 +88,62 @@
         </div>
       </div>
 
+      <p class="result-count" id="resultCount" aria-live="polite"></p>
       <div class="grid" id="grid"></div>
+      <div class="empty" id="empty" hidden>
+        <p>Nothing matches that search right now.</p>
+        <small>Looking for something specific? <a href="#contact">Ask me</a> — I might have it or can keep an eye out.</small>
+      </div>
+    </section>
+
+    <section class="how wrap" id="how">
+      <h2 class="pill-heading">How to buy</h2>
+      <ol class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <h3>Pick your items</h3>
+          <p>Find what you want and note its code (like <b>#P001</b>). Prices are firm unless marked otherwise — bundles welcome.</p>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <h3>Send me a message</h3>
+          <p>Tap <b>“I want this”</b> on any item. I'll confirm it's still available and hold it for you.</p>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <h3>Meet up locally</h3>
+          <p id="pickupText">Local pickup around Boise.</p>
+          <p class="pay" id="payText"></p>
+        </li>
+      </ol>
     </section>
   </main>
 
-  <footer class="wrap" id="footer">
+  <footer class="wrap" id="contact">
     <div class="footer-card">
-      <div class="footer-col">
-        <h3>Navigation</h3>
-        <a href="#shop">The Shop</a>
-        <a href="#">Developer Portal</a>
-        <a href="#">Press Kit</a>
-      </div>
-      <div class="footer-col">
-        <h3>Legal</h3>
-        <a href="#">Terms of Sale</a>
-        <a href="#">Privacy Policy</a>
-        <a href="#">Refund Policy</a>
-      </div>
-      <div class="footer-col">
-        <h3>Community</h3>
-        <a href="#">The Discord</a>
-        <a href="#">Letterboxd</a>
-        <a href="#">Instagram</a>
+      <div class="footer-contact">
+        <h3>Get in touch</h3>
+        <p>Questions, bundle deals, or looking for something specific? Reach out:</p>
+        <div class="contact-btns" id="contactBtns"></div>
+        <p class="contact-missing" id="contactMissing" hidden>Contact options coming soon — message me wherever you found this link.</p>
       </div>
       <div class="footer-brand">
-        <span class="footer-logo">THE ARCHIVE</span>
-        <small>Est. <span id="year"></span>. All Rights Reserved.</small>
+        <span class="footer-logo">SCHEIBER'S VAULT</span>
+        <small>Local pickup · Boise, Idaho</small>
+        <p class="disclaimer">Independent reseller. Not affiliated with or endorsed by Nintendo, The Pokémon Company, Game Freak or Creatures. All trademarks belong to their owners.</p>
       </div>
     </div>
   </footer>
 
+  <!-- Item detail dialog -->
+  <dialog class="modal" id="modal" aria-labelledby="modalTitle">
+    <button class="modal-close" type="button" id="modalClose" aria-label="Close">×</button>
+    <div class="modal-body" id="modalBody"></div>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="inventory.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

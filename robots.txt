@@ -1,2 +1,13 @@
+# Link-preview bots may fetch the page so shared links show a preview card.
+User-agent: facebookexternalhit
+User-agent: Facebot
+User-agent: Twitterbot
+User-agent: Slackbot
+User-agent: Discordbot
+User-agent: WhatsApp
+User-agent: LinkedInBot
+Allow: /
+
+# Everyone else (search engines, crawlers) stays out.
 User-agent: *
 Disallow: /
