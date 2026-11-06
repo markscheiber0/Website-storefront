@@ -11,7 +11,7 @@ const STORE = {
   messenger: "",                      // e.g. "https://m.me/your.username"
   facebook: "",                       // e.g. your Facebook Marketplace profile URL
   phone: "5309028791",                // texts — "Text me" button
-  email: "mark.scheiber@gmail.com",   // "Email me" button
+  email: "mark.scheiber@scheiberintelligence.com", // "Email me" button
   sellerName: "Mark",                 // used in the prefilled message: "Hey Mark, ..."
 
   payments: ["Cash", "Venmo", "Zelle"],
