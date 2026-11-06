@@ -103,7 +103,7 @@ function mediaFor(item, large = false) {
 // ---------- Contact ----------
 function inquiryText(item) {
   return item
-    ? `Hi! Is #${item.id} ${item.name} (${fmtPrice(item.price)}) still available?`
+    ? `Hi! Is the ${item.name} (${fmtPrice(item.price)}) still available?`
     : `Hi! I saw your Pokémon & Nintendo shop and had a question.`;
 }
 
@@ -116,7 +116,7 @@ function contactLinks(item) {
     links.push({ cls: "c-text", label: "Text me", href: `sms:${digits}?&body=${encodeURIComponent(msg)}` });
   }
   if (STORE.email) {
-    const subject = item ? `#${item.id} ${item.name}` : `${STORE.name} question`;
+    const subject = item ? item.name : `${STORE.name} question`;
     links.push({ cls: "c-email", label: "Email", href: `mailto:${STORE.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}` });
   }
   if (STORE.facebook) links.push({ cls: "c-facebook", label: "Facebook", href: STORE.facebook });
@@ -189,7 +189,7 @@ function render() {
             ${isNew(item) && s === "available" ? `<span class="new-flag">NEW</span>` : ""}
             ${badgeFor(item)}
           </div>
-          <span class="genre">${esc(cat.label)} <em>#${esc(item.id)}</em></span>
+          <span class="genre">${esc(cat.label)}</span>
           <h3>${esc(item.name)}</h3>
           ${item.details ? `<p class="details">${esc(item.details)}</p>` : ""}
           <p class="condition">${esc(item.condition || "")}</p>
@@ -227,7 +227,7 @@ function openItem(id, push = true) {
   $("modalBody").innerHTML = `
     <div class="modal-media">${mediaFor(item, true)}</div>
     <div class="modal-info">
-      <span class="genre">${esc(cat.label)} <em>#${esc(item.id)}</em></span>
+      <span class="genre">${esc(cat.label)}</span>
       <h2 id="modalTitle">${esc(item.name)}</h2>
       ${item.details ? `<p class="details">${esc(item.details)}</p>` : ""}
       ${item.description ? `<p class="description">${esc(item.description)}</p>` : ""}
