@@ -12,6 +12,12 @@
 - `styles.css` uses the sky-blue/red theme. CSS variables are on `:root`.
 - `images/` holds item photos, referenced as `image: "images/P001.jpg"`.
 - `og-image.png` is the 1200×630 link-preview card for Facebook and others.
+- `list.html` is the hidden Facebook Marketplace listing helper, not linked from the site. It reads `inventory.js` and shows ready-to-copy Title, Price, Category, Condition, Description and Photo for each item. Items are grouped into Ready to post, Already on Facebook and Sold. It includes instructions for Claude in Chrome and a JSON dump.
+
+## Facebook sync workflow
+`inventory.js` is the single source of truth, because Marketplace has no API for personal sellers.
+- When an item gets posted to Marketplace, set `fbListed: "YYYY-MM-DD"` on it.
+- When an item sells, set `qty: 0`. `list.html` then shows it under "Sold — mark as sold on Facebook".
 
 ## Inventory rules
 - Each item needs a unique `id` (P### = Pokémon, N### = Nintendo), a `category` (`pokemon-singles`, `pokemon-sealed`, `pokemon-graded`, `nintendo-games` or `nintendo-hardware`), `price` (USD number), `qty` and `added` (YYYY-MM-DD).

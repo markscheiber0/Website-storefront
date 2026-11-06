@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>Marketplace Listing Helper — Scheiber's Vault</title>
+  <style>
+    :root { --navy:#0f2a4a; --blue:#0b6fc7; --soft:#e3f3ff; --red:#ee3124; --green:#17a35a; --muted:#5d7590; --bg:#f4faff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--navy); background: var(--bg); }
+    main { width: min(980px, 100% - 32px); margin: 32px auto 80px; }
+    h1 { font-size: 26px; margin: 0 0 4px; color: var(--blue); }
+    h2 { font-size: 20px; margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 3px solid var(--soft); }
+    h2 small { font-weight: 600; color: var(--muted); font-size: 14px; }
+    .sub { color: var(--muted); margin: 0 0 20px; }
+    .panel { background: #fff; border-radius: 14px; padding: 18px 22px; box-shadow: 0 6px 20px rgba(11,111,199,.08); }
+    .instructions ol { margin: 8px 0 0; padding-left: 20px; }
+    .instructions li { margin-bottom: 6px; }
+    .defaults { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 14px; }
+    .defaults div { background: var(--bg); border-radius: 10px; padding: 8px 12px; }
+    .label { display: block; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--blue); }
+
+    .listing { display: grid; grid-template-columns: 220px 1fr; gap: 22px; margin-bottom: 18px; }
+    .listing.sold { opacity: .75; }
+    .photo { text-align: center; }
+    .photo img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #fff; border: 2px solid var(--soft); border-radius: 12px; }
+    .photo a { display: inline-block; margin-top: 8px; font-weight: 700; font-size: 13px; color: var(--blue); }
+    .fields { display: grid; gap: 10px; }
+    .field { display: grid; grid-template-columns: 120px 1fr auto; gap: 10px; align-items: start; }
+    .value { background: var(--bg); border-radius: 8px; padding: 6px 10px; white-space: pre-wrap; word-break: break-word; }
+    .value.desc { max-height: 260px; overflow: auto; font-size: 14px; }
+    button.copy { font: 700 12px system-ui, sans-serif; color: var(--blue); background: var(--soft); border: 0; border-radius: 8px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
+    button.copy:hover { background: #cfe8ff; }
+    button.copy.done { background: var(--green); color: #fff; }
+    .tag { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+    .tag.ready { background: #dcf7e7; color: var(--green); }
+    .tag.listed { background: var(--soft); color: var(--blue); }
+    .tag.sold { background: #fde4e2; color: var(--red); }
+    .listing h3 { margin: 0 0 8px; font-size: 17px; }
+    .empty { color: var(--muted); font-style: italic; }
+    details { margin-top: 40px; }
+    summary { cursor: pointer; font-weight: 700; color: var(--blue); }
+    pre { background: #fff; border-radius: 10px; padding: 14px; overflow: auto; font-size: 12px; }
+    @media (max-width: 700px) {
+      .listing { grid-template-columns: 1fr; }
+      .photo img { max-width: 260px; }
+      .field { grid-template-columns: 1fr auto; }
+      .field .label { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Facebook Marketplace Listing Helper</h1>
+  <p class="sub">Generated live from the storefront inventory (<code>inventory.js</code>), so it always matches <a href="/">the website</a>. Inventory last updated: <b id="updated"></b>.</p>
+
+  <section class="panel instructions" id="instructions">
+    <span class="label">Instructions for the person or AI assistant creating listings</span>
+    <ol>
+      <li>Work through <b>“Ready to post”</b> below. Create <b>one</b> Facebook Marketplace listing (Create new listing → <b>Item for sale</b>) per item.</li>
+      <li>Copy each field <b>exactly</b>: Title, Price, Category, Condition and Description. Do not change prices or invent details.</li>
+      <li>Photo: add the item's photo. Use “Download photo” to save it, then attach it in Facebook. If you can't attach files yourself, stop and ask the user to attach it.</li>
+      <li>Location: <b id="locText"></b>. Leave delivery or shipping off, because it's local pickup only.</li>
+      <li><b>Before you click Publish on each listing, show the filled-in listing to the user and wait for their OK.</b></li>
+      <li>Skip anything under “Already on Facebook”, since those are posted already. Don't create duplicates.</li>
+      <li>For each item under <b>“Sold”</b>, if it's listed on Facebook, open it in Marketplace → Your listings and choose <b>Mark as sold</b>.</li>
+      <li>When finished, tell the user which items you posted or marked sold, so the inventory file can be updated.</li>
+    </ol>
+    <div class="defaults">
+      <div><span class="label">Listing type</span>Item for sale</div>
+      <div><span class="label">Location</span><span id="locDefault"></span></div>
+      <div><span class="label">Delivery</span>Local pickup only</div>
+      <div><span class="label">Payment</span><span id="payDefault"></span></div>
+    </div>
+  </section>
+
+  <h2 id="ready-heading">Ready to post <small id="readyCount"></small></h2>
+  <div id="ready"></div>
+
+  <h2 id="listed-heading">Already on Facebook <small id="listedCount"></small></h2>
+  <div id="listed"></div>
+
+  <h2 id="sold-heading">Sold — mark as sold on Facebook <small id="soldCount"></small></h2>
+  <div id="sold"></div>
+
+  <details>
+    <summary>All listings as JSON (for tools)</summary>
+    <pre id="json"></pre>
+  </details>
+</main>
+
+<script src="inventory.js"></script>
+<script>
+  const SITE = "https://storefront.scheiberintelligence.com";
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const status = (i) => (!i.qty || i.qty <= 0 ? "sold" : i.pending ? "pending" : "available");
+
+  // Facebook Marketplace field mapping
+  const FB_CATEGORY = {
+    "pokemon-singles": "Toys & Games",
+    "pokemon-sealed": "Toys & Games",
+    "pokemon-graded": "Toys & Games",
+    "nintendo-games": "Video Games",
+    "nintendo-hardware": "Video Games",
+  };
+
+  function fbCondition(item) {
+    if (item.fbCondition) return item.fbCondition;
+    const c = (item.condition || "").toLowerCase();
+    if (/sealed|brand new|^new/.test(c)) return "New";
+    if (/like new|near mint|mint|psa|bgs|cgc|excellent/.test(c)) return "Used - Like New";
+    if (/fair|played|heavy|damaged/.test(c)) return "Used - Fair";
+    return "Used - Good";
+  }
+
+  function fbTitle(item) {
+    let t = item.name;
+    if (item.category.startsWith("pokemon") && !/pok[eé]mon/i.test(t)) t = "Pokémon TCG " + t;
+    if (/sealed/i.test(item.condition || "") && !/sealed/i.test(t)) t += " (Sealed)";
+    return t.length > 100 ? t.slice(0, 99) + "…" : t;
+  }
+
+  function fbDescription(item) {
+    const lines = [];
+    lines.push(item.name);
+    if (item.details) lines.push(item.details);
+    if (item.condition) lines.push(`Condition: ${item.condition}`);
+    if (item.description) lines.push("", item.description);
+    if (item.contents && item.contents.length) {
+      lines.push("", "What's inside:");
+      item.contents.forEach((c) => lines.push(`• ${c}`));
+    }
+    lines.push("", `Local pickup in ${STORE.city}.${STORE.payments.length ? " " + STORE.payments.join(" / ") + " accepted." : ""}`);
+    lines.push("Message me if you're interested!");
+    return lines.join("\n");
+  }
+
+  function toListing(item) {
+    return {
+      id: item.id,
+      status: status(item),
+      onFacebook: !!item.fbListed,
+      title: fbTitle(item),
+      price: item.price,
+      category: FB_CATEGORY[item.category] || "Toys & Games",
+      condition: fbCondition(item),
+      description: fbDescription(item),
+      photoUrl: item.image ? `${SITE}/${item.image}` : "",
+      photoPath: item.image || "",
+      websiteLink: `${SITE}/#${item.id}`,
+      quantity: item.qty,
+    };
+  }
+
+  const fieldRow = (label, value, cls = "") => `
+    <div class="field">
+      <span class="label">${label}</span>
+      <div class="value ${cls}" data-field="${label.toLowerCase()}">${esc(value)}</div>
+      <button class="copy" type="button">Copy</button>
+    </div>`;
+
+  function card(l, tag) {
+    const tagText = { ready: "Ready to post", listed: "On Facebook", sold: "Sold" }[tag];
+    return `
+    <article class="panel listing ${tag === "sold" ? "sold" : ""}" id="item-${esc(l.id)}" data-id="${esc(l.id)}" data-status="${tag}">
+      <div class="photo">
+        ${l.photoPath ? `<img src="${esc(l.photoPath)}" alt="${esc(l.title)}">
+        <a href="${esc(l.photoPath)}" download="${esc(l.id)}.jpg">Download photo</a>` : `<p class="empty">No photo yet</p>`}
+      </div>
+      <div>
+        <h3>${esc(l.title)}<span class="tag ${tag}">${tagText}</span></h3>
+        <div class="fields">
+          ${fieldRow("Title", l.title)}
+          ${fieldRow("Price", l.price)}
+          ${fieldRow("Category", l.category)}
+          ${fieldRow("Condition", l.condition)}
+          ${tag === "sold" ? "" : fieldRow("Description", l.description, "desc")}
+        </div>
+      </div>
+    </article>`;
+  }
+
+  const listings = INVENTORY.map(toListing);
+  const ready  = listings.filter((l) => l.status === "available" && !l.onFacebook);
+  const listed = listings.filter((l) => l.status !== "sold" && l.onFacebook);
+  const sold   = listings.filter((l) => l.status === "sold");
+
+  const fill = (id, arr, tag, emptyText) => {
+    document.getElementById(id).innerHTML = arr.length ? arr.map((l) => card(l, tag)).join("") : `<p class="empty">${emptyText}</p>`;
+    document.getElementById(id + "Count").textContent = `(${arr.length})`;
+  };
+  fill("ready", ready, "ready", "Nothing new to post.");
+  fill("listed", listed, "listed", "Nothing marked as posted yet.");
+  fill("sold", sold, "sold", "No sold items.");
+
+  document.getElementById("updated").textContent = STORE.updated || "—";
+  document.getElementById("locText").textContent = STORE.city;
+  document.getElementById("locDefault").textContent = STORE.city;
+  document.getElementById("payDefault").textContent = STORE.payments.join(" / ") || "—";
+  document.getElementById("json").textContent = JSON.stringify({ ready, onFacebook: listed, sold }, null, 2);
+
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button.copy");
+    if (!btn) return;
+    const text = btn.previousElementSibling.textContent;
+    try { await navigator.clipboard.writeText(text); }
+    catch {
+      const ta = Object.assign(document.createElement("textarea"), { value: text });
+      document.body.append(ta); ta.select(); document.execCommand("copy"); ta.remove();
+    }
+    btn.textContent = "Copied"; btn.classList.add("done");
+    setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1500);
+  });
+</script>
+</body>
+</html>

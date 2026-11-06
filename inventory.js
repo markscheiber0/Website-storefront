@@ -33,6 +33,10 @@ const STORE = {
 //  description longer text shown when the item is opened (optional)
 //  contents    list of what's inside, shown when opened (optional)
 //  added       date listed, YYYY-MM-DD (used for "Newest" sort and NEW badge)
+//  fbListed    date it was posted on Facebook Marketplace, e.g. "2026-11-07"
+//              (optional; moves it to "Already on Facebook" on list.html)
+//  fbCondition override the Marketplace condition (optional: "New",
+//              "Used - Like New", "Used - Good", "Used - Fair")
 //
 //  Photos & descriptions: TCGplayer product listings. Prices: TCGplayer
 //  market price on 2026-11-06, rounded — adjust to what you want to charge.
