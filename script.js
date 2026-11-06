@@ -33,7 +33,7 @@ function badgeFor(item) {
   const s = statusOf(item);
   if (s === "sold") return `<span class="badge badge-sold">Sold</span>`;
   if (s === "pending") return `<span class="badge badge-pending">On hold</span>`;
-  if (item.qty === 1) return `<span class="badge badge-last">Only 1 left</span>`;
+  if (item.qty === 1) return `<span class="badge badge-stock">In stock</span>`;
   return `<span class="badge badge-stock">${item.qty} in stock</span>`;
 }
 
@@ -144,6 +144,7 @@ function buildChips() {
   ];
 
   $("chips").innerHTML = chips
+    .filter(([key, , n]) => key === "all" || n > 0)
     .map(
       ([key, label, n]) =>
         `<button type="button" class="chip${key === "pokemon" || key === "nintendo" || key === "all" ? " chip-main" : ""}" role="tab" data-cat="${key}" aria-selected="${state.cat === key}">${label}<span>${n}</span></button>`
@@ -229,6 +230,10 @@ function openItem(id, push = true) {
       <span class="genre">${esc(cat.label)} <em>#${esc(item.id)}</em></span>
       <h2 id="modalTitle">${esc(item.name)}</h2>
       ${item.details ? `<p class="details">${esc(item.details)}</p>` : ""}
+      ${item.description ? `<p class="description">${esc(item.description)}</p>` : ""}
+      ${item.contents && item.contents.length
+        ? `<div class="contents"><p class="ask-label">What's inside</p><ul>${item.contents.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>`
+        : ""}
       <dl class="facts">
         <div><dt>Price</dt><dd class="price">${fmtPrice(item.price)}</dd></div>
         <div><dt>Condition</dt><dd>${esc(item.condition || "—")}</dd></div>
