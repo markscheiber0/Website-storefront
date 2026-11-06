@@ -10,8 +10,9 @@ const STORE = {
   // Contact options (fill in the ones you want shown)
   messenger: "",                      // e.g. "https://m.me/your.username"
   facebook: "",                       // e.g. your Facebook Marketplace profile URL
-  phone: "",                          // for texts, e.g. "2085551234"
-  email: "",                          // e.g. "you@example.com"
+  phone: "5309028791",                // texts — "Text me" button
+  email: "mark.scheiber@gmail.com",   // "Email me" button
+  sellerName: "Mark",                 // used in the prefilled message: "Hey Mark, ..."
 
   payments: ["Cash", "Venmo", "Zelle"],
   pickup: "Local pickup around Boise & Meridian — we'll meet at a public spot.",

@@ -101,10 +101,18 @@ function mediaFor(item, large = false) {
 }
 
 // ---------- Contact ----------
+const SELLER = STORE.sellerName || "Mark";
+
 function inquiryText(item) {
   return item
-    ? `Hi! Is the ${item.name} (${fmtPrice(item.price)}) still available?`
-    : `Hi! I saw your Pokémon & Nintendo shop and had a question.`;
+    ? `Hey ${SELLER}, can I come and get the ${item.name}?`
+    : `Hey ${SELLER}, I saw your Pokémon shop and wanted to ask about `;
+}
+
+// (530) 902-8791 style for display
+function prettyPhone(p) {
+  const d = p.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
+  return d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : p;
 }
 
 function contactLinks(item) {
@@ -112,12 +120,22 @@ function contactLinks(item) {
   const links = [];
   if (STORE.messenger) links.push({ cls: "c-messenger", label: "Messenger", href: STORE.messenger });
   if (STORE.phone) {
-    const digits = STORE.phone.replace(/[^\d+]/g, "");
-    links.push({ cls: "c-text", label: "Text me", href: `sms:${digits}?&body=${encodeURIComponent(msg)}` });
+    let digits = STORE.phone.replace(/\D/g, "");
+    if (digits.length === 10) digits = "1" + digits;
+    // "?&body=" works on both iPhone and Android
+    links.push({
+      cls: "c-text",
+      label: `💬 Text me · ${prettyPhone(STORE.phone)}`,
+      href: `sms:+${digits}?&body=${encodeURIComponent(msg)}`,
+    });
   }
   if (STORE.email) {
-    const subject = item ? item.name : `${STORE.name} question`;
-    links.push({ cls: "c-email", label: "Email", href: `mailto:${STORE.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}` });
+    const subject = item ? `${item.name} — ${STORE.name}` : `${STORE.name} question`;
+    links.push({
+      cls: "c-email",
+      label: "✉️ Email me",
+      href: `mailto:${STORE.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`,
+    });
   }
   if (STORE.facebook) links.push({ cls: "c-facebook", label: "Facebook", href: STORE.facebook });
   return links;
@@ -347,6 +365,7 @@ function setupPage() {
   const links = contactLinks(null);
   $("contactBtns").innerHTML = links.map(linkBtn).join("");
   $("contactMissing").hidden = links.length > 0;
+  $("contactPlain").textContent = [STORE.phone && prettyPhone(STORE.phone), STORE.email].filter(Boolean).join("  ·  ");
 }
 
 setupPage();

@@ -440,6 +440,7 @@ footer { padding: 100px 0 70px; scroll-margin-top: 40px; }
 }
 .footer-contact h3 { font: 700 22px var(--font-head); color: var(--blue); margin-bottom: 8px; }
 .footer-contact > p { color: var(--muted); margin-bottom: 18px; line-height: 1.6; }
+.contact-plain { margin-top: 14px; font-size: 14px; font-weight: 700; color: var(--navy); user-select: all; }
 .contact-missing { font-size: 14px; color: var(--muted); font-style: italic; }
 .contact-btns { display: flex; flex-wrap: wrap; gap: 10px; }
 .contact-btn {
