@@ -6,6 +6,7 @@ const CATEGORIES = {
   "pokemon-graded":    { label: "Graded Cards",    short: "Graded",  art: "slab" },
   "nintendo-games":    { label: "Nintendo Games",  short: "Games",   art: "game" },
   "nintendo-hardware": { label: "Consoles & Accessories", short: "Hardware", art: "console" },
+  "sports-sealed":     { label: "Sports Cards", short: "Sealed", art: "box" },
 };
 
 const USD = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
@@ -155,12 +156,14 @@ function buildChips() {
   INVENTORY.filter((i) => statusOf(i) !== "sold").forEach((i) => (counts[i.category] = (counts[i.category] || 0) + 1));
   const pokemon = Object.keys(counts).filter((k) => k.startsWith("pokemon")).reduce((n, k) => n + counts[k], 0);
   const nintendo = Object.keys(counts).filter((k) => k.startsWith("nintendo")).reduce((n, k) => n + counts[k], 0);
+  const sports = Object.keys(counts).filter((k) => k.startsWith("sports")).reduce((n, k) => n + counts[k], 0);
 
   const chips = [
-    ["all", "All", pokemon + nintendo],
+    ["all", "All", pokemon + nintendo + sports],
     ["pokemon", "Pokémon", pokemon],
     ...Object.entries(CATEGORIES).filter(([k]) => k.startsWith("pokemon")).map(([k, v]) => [k, v.short, counts[k] || 0]),
     ["nintendo", "Nintendo", nintendo],
+    ["sports", "Sports", sports],
     ...Object.entries(CATEGORIES).filter(([k]) => k.startsWith("nintendo")).map(([k, v]) => [k, v.short, counts[k] || 0]),
   ];
 
@@ -168,7 +171,7 @@ function buildChips() {
     .filter(([key, , n]) => key === "all" || n > 0)
     .map(
       ([key, label, n]) =>
-        `<button type="button" class="chip${key === "pokemon" || key === "nintendo" || key === "all" ? " chip-main" : ""}" role="tab" data-cat="${key}" aria-selected="${state.cat === key}">${label}<span>${n}</span></button>`
+        `<button type="button" class="chip${["pokemon", "nintendo", "sports", "all"].includes(key) ? " chip-main" : ""}" role="tab" data-cat="${key}" aria-selected="${state.cat === key}">${label}<span>${n}</span></button>`
     )
     .join("");
 }
@@ -176,8 +179,9 @@ function buildChips() {
 function matches(item) {
   if (!state.showSold && statusOf(item) === "sold") return false;
   if (state.cat !== "all") {
-    if ((state.cat === "pokemon" || state.cat === "nintendo") && !item.category.startsWith(state.cat)) return false;
-    if (state.cat !== "pokemon" && state.cat !== "nintendo" && item.category !== state.cat) return false;
+    if (["pokemon", "nintendo", "sports"].includes(state.cat)) {
+      if (!item.category.startsWith(state.cat)) return false;
+    } else if (item.category !== state.cat) return false;
   }
   if (state.q) {
     const hay = `${item.id} ${item.name} ${item.details} ${item.condition} ${(CATEGORIES[item.category] || {}).label}`.toLowerCase();

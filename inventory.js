@@ -350,4 +350,22 @@ const INVENTORY = [
     description: "Modded Nintendo Wii console. Message me with any questions about the console or what's included.",
     added: "2026-11-06",
   },
+  {
+    id: "P018",
+    name: "2026 Topps Chrome Baseball Mega Box",
+    category: "sports-sealed",
+    details: "Topps MLB — 42 cards, 6 packs (Mega Box exclusive)",
+    condition: "Factory sealed",
+    price: 168,
+    qty: 1,
+    image: "",
+    description: "2026 Topps Chrome Baseball showcases the game's biggest stars, rookies and legends on chromium cards. Each Mega Box pack contains seven cards. Look for exclusive X-Fractor parallels and Lightboard Logo Variation cards. The 300-card base set is joined by inserts such as Helix, Ultraviolet, World Series at Night, Diamond Moments and Static Noise. Chase Gold Logoman relic and autograph cards of 2025 award winners.",
+    contents: [
+      "6 packs, 7 cards per pack (42 cards total)",
+      "Mega Box exclusive X-Fractor parallels",
+      "Gold Logoman relic and autograph cards (Judge, Ohtani, Skubal, Skenes, Kurtz, Baldwin)",
+      "Rookie autographs (incl. Roman Anthony, Konnor Griffin, Jac Caglianone, Munetaka Murakami, JJ Wetherholt, Kevin McGonigle, Andrew Painter)",
+    ],
+    added: "2026-11-07",
+  },
 ];
