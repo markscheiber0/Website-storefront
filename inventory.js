@@ -324,4 +324,17 @@ const INVENTORY = [
     ],
     added: "2026-11-06",
   },
+  {
+    id: "N001",
+    name: "Nintendo Wii — Modded",
+    category: "nintendo-hardware",
+    details: "Nintendo Wii console (modded)",
+    condition: "Used — modded",
+    fbCondition: "Used - Good",
+    price: 185,
+    qty: 1,
+    image: "images/N001.jpg",   // stock photo of a regular Wii (public domain, Evan-Amos / Wikimedia Commons)
+    description: "Modded Nintendo Wii console. Message me with any questions about the console or what's included.",
+    added: "2026-11-06",
+  },
 ];
