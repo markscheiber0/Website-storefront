@@ -358,7 +358,7 @@ const INVENTORY = [
     condition: "Factory sealed",
     price: 168,
     qty: 1,
-    image: "",
+    image: "images/P018.jpg",
     description: "2026 Topps Chrome Baseball showcases the game's biggest stars, rookies and legends on chromium cards. Each Mega Box pack contains seven cards. Look for exclusive X-Fractor parallels and Lightboard Logo Variation cards. The 300-card base set is joined by inserts such as Helix, Ultraviolet, World Series at Night, Diamond Moments and Static Noise. Chase Gold Logoman relic and autograph cards of 2025 award winners.",
     contents: [
       "6 packs, 7 cards per pack (42 cards total)",
