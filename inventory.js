@@ -44,6 +44,19 @@ const STORE = {
 // =====================================================================
 const INVENTORY = [
   {
+    id: "P017",
+    name: "Rippiez POKÉMON Holo Pack",
+    category: "pokemon-sealed",
+    details: "Rippiez POKE — $5 holo pack (sealed)",
+    condition: "Factory sealed",
+    price: 5,
+    qty: 1,
+    image: "images/P017.jpg",
+    description: "Rippiez is the quick-hit collectible: every $5 pack guarantees 1 holo Pokémon card, with real odds at legendary pulls (1/30 • 1/100 • 1/400 • 1/1200). Sealed, one pack, no bulk. More info: https://vaultedrarities.com/products/rippiez-poke",
+    contents: ["1 guaranteed holo Pokémon card"],
+    added: "2026-11-07",
+  },
+  {
     id: "P001",
     name: "Delta Reign Elite Trainer Box",
     category: "pokemon-sealed",
