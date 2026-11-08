@@ -293,7 +293,7 @@ const INVENTORY = [
     details: "Mega Evolution — Delta Reign (ME06)",
     condition: "Factory sealed",
     price: 216,
-    qty: 1,
+    qty: 0,
     image: "images/P014.jpg",
     description: "A Legendary Storm Is Stirring! Mega Rayquaza ex brings unparalleled strength to battle, inspiring Mega Golurk ex, Mega Malamar ex, and Mega Golisopod ex to come forth and put their own skills to the test.",
     contents: ["36 Delta Reign booster packs (10 cards each)"],
