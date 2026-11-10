@@ -52,7 +52,7 @@ const INVENTORY = [
     price: 5,
     qty: 1,
     image: "images/P017.jpg",
-    description: "Rippiez is the quick-hit collectible: every $5 pack guarantees 1 holo Pokémon card, with real odds at legendary pulls (1/30 • 1/100 • 1/400 • 1/1200). Sealed, one pack, no bulk. More info: https://vaultedrarities.com/products/rippiez-poke",
+    description: "Vaulted Rarities Rippiez. Rippiez is the quick-hit collectible: every $5 pack guarantees 1 holo Pokémon card, with real odds at legendary pulls (1/30 • 1/100 • 1/400 • 1/1200). Sealed, one pack, no bulk. More info: https://vaultedrarities.com/products/rippiez-poke",
     contents: ["1 guaranteed holo Pokémon card"],
     added: "2026-11-07",
   },
