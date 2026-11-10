@@ -374,7 +374,7 @@ const INVENTORY = [
     category: "pokemon-sealed",
     details: "Mega Evolution — Delta Reign (ME06 · DLR)",
     condition: "Factory sealed",
-    price: 7,
+    price: 8,
     qty: 1,
     image: "images/P019.jpg",
     description: "A thunderous roar from above heralds the descent of Mega Rayquaza ex, inspiring Mega Golurk ex, Mega Malamar ex and Mega Golisopod ex to come forth in the Pokémon TCG: Mega Evolution—Delta Reign expansion. Sleeved single booster pack with a cardboard guard.",
