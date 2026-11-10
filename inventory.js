@@ -210,7 +210,7 @@ const INVENTORY = [
     details: "Scarlet & Violet — Black Bolt & White Flare (Unova)",
     condition: "Factory sealed",
     price: 36,
-    qty: 1,
+    qty: 0,
     image: "images/P009.jpg",
     description: "Reunite with the Pokémon of Unova! Comes with foil promos of the three Unova first partners, a poster, and booster packs from both Black Bolt and White Flare.",
     contents: [
